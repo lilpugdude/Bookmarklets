@@ -1,0 +1,27 @@
+javascript:(function(){
+  if(window.overlayFrame){ return; }
+  let url = prompt("Enter the URL to cover the screen:");
+  if(!url) return;
+  
+  let overlay = document.createElement("iframe");
+  overlay.src = url;
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.zIndex = "999999";
+  overlay.style.border = "none";
+  overlay.style.backgroundColor = "#fff";
+  document.body.appendChild(overlay);
+  
+  window.overlayFrame = overlay;
+  window.overlayHidden = false;
+
+  window.addEventListener("keydown", function(e){
+    if(e.key === "`"){
+      window.overlayHidden = !window.overlayHidden;
+      window.overlayFrame.style.display = window.overlayHidden ? "none" : "block";
+    }
+  });
+})();
