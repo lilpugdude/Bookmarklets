@@ -1,0 +1,23 @@
+javascript:(function(){
+  try {
+
+    var newTitle = prompt("Enter the new website title:");
+    if(newTitle) document.title = newTitle;
+
+
+    var imgURL = prompt("Enter an image URL for the icon:");
+    if(imgURL){
+
+      var links = document.querySelectorAll("link[rel*='icon']");
+      links.forEach(l => l.remove());
+
+
+      var icon = document.createElement("link");
+      icon.rel = "icon";
+      icon.href = imgURL;
+      document.head.appendChild(icon);
+    }
+  } catch(e){
+    alert("Error: " + e.message);
+  }
+})();
