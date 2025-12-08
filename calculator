@@ -1,0 +1,52 @@
+javascript:(function(){
+    let c=document.getElementById("calcBox");
+    if(c){c.remove();}
+    c=document.createElement("div");
+    c.id="calcBox";
+    c.style.position="fixed";
+    c.style.top="50px";
+    c.style.left="50px";
+    c.style.padding="15px";
+    c.style.background="#ddd";
+    c.style.color="black";
+    c.style.border="2px solid #555";
+    c.style.borderRadius="10px";
+    c.style.zIndex=999999;
+    c.style.fontSize="16px";
+    c.style.cursor="move";
+
+    c.innerHTML='<div style="margin-bottom:10px;"><input id="calcInput" style="width:180px;padding:5px;font-size:16px;color:black;background:white;border:1px solid #555;" placeholder="Type math..."></div><button id="calcEval" style="padding:5px 10px;font-size:16px;color:black;background:#f0f0f0;border:1px solid #555;">=</button> <button id="calcClose" style="padding:5px 10px;font-size:16px;color:black;background:#f0f0f0;border:1px solid #555;">X</button><div id="calcResult" style="margin-top:10px;font-size:18px;color:black;"></div>';
+
+    document.body.appendChild(c);
+
+    // movement
+    let isDown=false,offX=0,offY=0;
+    c.addEventListener("mousedown",e=>{
+        isDown=true;
+        offX=e.clientX-parseInt(c.style.left);
+        offY=e.clientY-parseInt(c.style.top);
+    });
+    document.addEventListener("mouseup",()=>isDown=false);
+    document.addEventListener("mousemove",e=>{
+        if(isDown){
+            c.style.left=(e.clientX-offX)+"px";
+            c.style.top=(e.clientY-offY)+"px";
+        }
+    });
+
+    // calculator
+    calcEval.onclick=function(){
+        try{ calcResult.innerText=eval(calcInput.value); }
+        catch(e){ calcResult.innerText="Error"; }
+    };
+    calcClose.onclick=function(){ c.remove(); };
+
+    // hide/show with "\" key
+    let hidden=false;
+    document.addEventListener("keydown",function(e){
+        if(e.key==="\\"){
+            hidden=!hidden;
+            c.style.display = hidden ? "none" : "block";
+        }
+    });
+})();
