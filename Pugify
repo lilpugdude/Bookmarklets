@@ -1,0 +1,15 @@
+  document.querySelectorAll("img").forEach(img => {
+    img.dataset.oldSrc = img.src;
+    img.src = pugUrl;
+  });
+
+
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+  let node;
+  while(node = walker.nextNode()) {
+    if(node.nodeValue.trim().length > 0) {
+      node.nodeValue = "pug ";
+    }
+  }
+
+})();
