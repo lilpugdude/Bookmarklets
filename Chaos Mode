@@ -1,0 +1,13 @@
+javascript:(function(){
+  const imgs = document.querySelectorAll("img");
+  imgs.forEach(img => {
+    img.style.transition = "all 0.2s";
+    setInterval(()=>{
+      img.style.transform =
+        `rotate(${Math.random()*360}deg) 
+         scale(${0.5 + Math.random()*1.5}) 
+         translate(${Math.random()*50}px, ${Math.random()*50}px)`;
+    }, 300);
+  });
+  alert("Image Chaos Activated!");
+})();
