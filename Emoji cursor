@@ -1,0 +1,19 @@
+javascript:(function(){
+  const emoji = prompt("Emoji to trail? (default = 🐾)", "🐾") || "🐾";
+  const size = "24px";
+
+  document.addEventListener("mousemove", e => {
+    const span = document.createElement("span");
+    span.textContent = emoji;
+    span.style.position = "fixed";
+    span.style.left = e.clientX + "px";
+    span.style.top = e.clientY + "px";
+    span.style.pointerEvents = "none";
+    span.style.fontSize = size;
+    span.style.zIndex = 999999;
+
+    document.body.appendChild(span);
+
+    setTimeout(() => span.remove(), 700);
+  });
+})();
