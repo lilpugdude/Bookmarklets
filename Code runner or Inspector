@@ -1,0 +1,211 @@
+javascript:(function(){
+
+// Create main window
+let box = document.createElement("div");
+box.style = `
+  position: fixed;
+  top: 60px;
+  left: 60px;
+  width: 500px;
+  height: 550px;
+  background: #1e1e1e;
+  color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,.5);
+  z-index: 999999999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+`;
+
+// Drag bar
+let drag = document.createElement("div");
+drag.style = `
+  background: #333;
+  padding: 10px;
+  cursor: move;
+  user-select: none;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+`;
+drag.textContent = "Code & Inspect Tool";
+
+let closeBtn = document.createElement("span");
+closeBtn.textContent = "✖";
+closeBtn.style = "cursor:pointer;";
+drag.appendChild(closeBtn);
+
+// Drag logic
+let ox, oy;
+drag.onmousedown = e => {
+  ox = e.clientX - box.offsetLeft;
+  oy = e.clientY - box.offsetTop;
+  document.onmousemove = ev => {
+    box.style.left = (ev.clientX - ox)+"px";
+    box.style.top = (ev.clientY - oy)+"px";
+  };
+  document.onmouseup = () => document.onmousemove = null;
+};
+
+// Tabs
+let tabs = document.createElement("div");
+tabs.style = "display:flex; background:#222;";
+function makeTab(name, active){
+  let b = document.createElement("button");
+  b.textContent = name;
+  b.style = `
+    flex:1; padding:10px; border:none; cursor:pointer;
+    background:${active ? "#444" : "#222"}; color:white;
+  `;
+  return b;
+}
+let tabEditor = makeTab("Editor", true);
+let tabInspect = makeTab("Inspect", false);
+tabs.appendChild(tabEditor);
+tabs.appendChild(tabInspect);
+
+// Editor page
+let editorPage = document.createElement("div");
+editorPage.style = "flex:1; display:flex; flex-direction:column;";
+
+let taEditor = document.createElement("textarea");
+taEditor.style = `
+  flex:1; background:#111; color:#00ff9c; border:none;
+  font-family:monospace; padding:10px; resize:auto; overflow:auto;
+`;
+
+let runBtnEditor = document.createElement("button");
+runBtnEditor.textContent = "Run JS";
+runBtnEditor.style = `
+  background:#00c77f; border:none; padding:10px; cursor:pointer;
+  color:black; font-weight:bold;
+`;
+
+editorPage.appendChild(runBtnEditor);
+editorPage.appendChild(taEditor);
+
+runBtnEditor.onclick = () => {
+  try { eval(taEditor.value); }
+  catch(e){ alert("Error: "+e); }
+};
+
+// Inspect page
+let inspectPage = document.createElement("div");
+inspectPage.style = `
+  flex:1; display:none; flex-direction:column; padding:10px; overflow:auto;
+`;
+
+let instructions = document.createElement("div");
+instructions.innerHTML = "<b>Click outside the GUI to inspect elements.</b>";
+instructions.style = "background:#333; padding:6px; margin-bottom:6px;";
+inspectPage.appendChild(instructions);
+
+// Editable textarea in Inspect tab
+let taInspect = document.createElement("textarea");
+taInspect.style = `
+  flex:1;
+  background:#111;
+  color:#0ff;
+  border:none;
+  padding:10px;
+  font-family: monospace;
+  resize: auto;
+  overflow:auto;
+`;
+inspectPage.appendChild(taInspect);
+
+let runBtnInspect = document.createElement("button");
+runBtnInspect.textContent = "Run JS";
+runBtnInspect.style = `
+  background:#00c77f; border:none; padding:10px; cursor:pointer;
+  color:black; font-weight:bold;
+`;
+inspectPage.appendChild(runBtnInspect);
+
+runBtnInspect.onclick = () => {
+  try { eval(taInspect.value); }
+  catch(e){ alert("Error: "+e); }
+};
+
+// Highlight element
+let highlight = document.createElement("div");
+highlight.style = `
+  position:fixed; border:2px solid yellow; z-index:999999998;
+  pointer-events:none; display:none;
+`;
+document.body.appendChild(highlight);
+
+// Inspect mode
+let inspecting = false;
+
+function formatStyles(cs){
+  let out = "";
+  for (let prop of cs){
+    out += prop + ": " + cs.getPropertyValue(prop) + ";\n";
+  }
+  return out;
+}
+
+// Click handler
+function clickHandler(e){
+  if(!inspecting) return;
+  if(box.contains(e.target)) return; // ignore GUI clicks
+  e.preventDefault();
+  e.stopPropagation();
+
+  let el = e.target;
+  let rect = el.getBoundingClientRect();
+
+  highlight.style.display = "block";
+  highlight.style.left = rect.left + "px";
+  highlight.style.top = rect.top + "px";
+  highlight.style.width = rect.width + "px";
+  highlight.style.height = rect.height + "px";
+
+  let cs = window.getComputedStyle(el);
+  taInspect.value =
+    "TAG: " + el.tagName + "\n\n" +
+    "TEXT:\n" + (el.innerText || "(none)") + "\n\n" +
+    "HTML:\n" + el.outerHTML + "\n\n" +
+    "STYLES:\n" + formatStyles(cs);
+}
+
+document.addEventListener("click", clickHandler, true);
+
+// Tab switching
+tabEditor.onclick = () => {
+  editorPage.style.display = "flex";
+  inspectPage.style.display = "none";
+  inspecting = false;
+  highlight.style.display = "none";
+  tabEditor.style.background = "#444";
+  tabInspect.style.background = "#222";
+};
+
+tabInspect.onclick = () => {
+  editorPage.style.display = "none";
+  inspectPage.style.display = "flex";
+  inspecting = true;
+  highlight.style.display = "none";
+  tabEditor.style.background = "#222";
+  tabInspect.style.background = "#444";
+};
+
+// Close button
+closeBtn.onclick = () => {
+  inspecting = false;
+  highlight.remove();
+  box.remove();
+  document.removeEventListener("click", clickHandler, true);
+};
+
+// Add everything
+box.appendChild(drag);
+box.appendChild(tabs);
+box.appendChild(editorPage);
+box.appendChild(inspectPage);
+document.body.appendChild(box);
+
+})();
