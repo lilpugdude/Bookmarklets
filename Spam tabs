@@ -1,10 +1,19 @@
 javascript:(function(){
-  let amount = parseInt(prompt("How many tabs do you want to open?"));
-  if(isNaN(amount) || amount < 1) return alert("Invalid number");
+  let amount = prompt("How many tabs do you want to open? (You can type ANY number)");
+  if(amount === null) return;
+
+  amount = parseInt(amount);
+
+  if(isNaN(amount) || amount < 1){
+    alert("Invalid number.");
+    return;
+  }
+
   let url = prompt("What URL should the tabs open?");
   if(!url) return;
 
+
   for(let i = 0; i < amount; i++){
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   }
 })();
